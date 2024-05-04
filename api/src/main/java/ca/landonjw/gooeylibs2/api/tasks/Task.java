@@ -2,7 +2,7 @@ package ca.landonjw.gooeylibs2.api.tasks;
 
 import ca.landonjw.gooeylibs2.bootstrap.GooeyBootstrapper;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public interface Task {

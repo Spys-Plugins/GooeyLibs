@@ -39,6 +39,7 @@ dependencies {
     implementation(project(":api", configuration = "namedElements"))
     "developmentFabric"(project(":api", configuration = "namedElements"))
     bundle(project(":api", configuration = "transformProductionFabric"))
+    modImplementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
 }
 
 tasks {
