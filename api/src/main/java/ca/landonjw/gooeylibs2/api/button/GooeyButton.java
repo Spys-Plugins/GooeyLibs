@@ -1,20 +1,22 @@
 package ca.landonjw.gooeylibs2.api.button;
 
 import com.google.common.collect.Lists;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import net.minecraft.world.item.component.ItemLore;
+
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -117,41 +119,38 @@ public class GooeyButton extends ButtonBase {
             if (display == null) throw new IllegalStateException("button display must be defined");
         }
 
+        private <T> DataComponentMap singleComponent(DataComponentType<T> type, T object) {
+            return DataComponentMap.builder().set(type, object).build();
+        }
+
         protected ItemStack buildDisplay() {
             if (title != null) {
                 MutableComponent result = Component.empty()
                         .setStyle(Style.EMPTY.withItalic(false))
                         .append(this.title);
-                display.setHoverName(result);
+                display.applyComponents(singleComponent(DataComponents.CUSTOM_NAME, result));
             }
 
             if (!lore.isEmpty()) {
-                ListTag nbtLore = new ListTag();
-                for (Component line : lore) {
-                    MutableComponent result = Component.empty()
-                            .setStyle(Style.EMPTY.withItalic(false))
-                            .append(line);
-                    nbtLore.add(StringTag.valueOf(Component.Serializer.toJson(result)));
-                }
-                display.getOrCreateTagElement("display").put("Lore", nbtLore);
+                display.applyComponents(singleComponent(DataComponents.LORE, new ItemLore(Collections.emptyList(), lore.stream().toList())));
             }
 
-            if (!this.hideFlags.isEmpty() && display.hasTag())
+            if (!this.hideFlags.isEmpty())
             {
                 if (this.hideFlags.contains(FlagType.Reforged) || this.hideFlags.contains(FlagType.All))
                 {
-                    display.getOrCreateTag().putString("tooltip", "");
+                    //TODO: Check if this breaks anything
                 }
                 if (this.hideFlags.contains(FlagType.Generations) || this.hideFlags.contains(FlagType.All))
                 {
-                    display.getOrCreateTag().putBoolean("HideTooltip", true);
+                    display.applyComponents(singleComponent(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE));
                 }
                 int value = 0;
                 for (FlagType flag : this.hideFlags)
                 {
                     value += flag.getValue();
                 }
-                display.getOrCreateTag().putInt("HideFlags", value);
+                //display.getOrCreateTag().putInt("HideFlags", value);
             }
             return display;
         }
